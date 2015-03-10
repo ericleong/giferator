@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>giferator</title>
+
+	<script src="js/async.js"></script>
+	<script src="js/omggif.js"></script>
+	<script src="js/glif.js"></script>
+	<script src="giferator.js"></script>
+	<script src="dropbox.js"></script>
+
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+		}
+
+		#dj {
+			width: 100vw;
+			height: 50vw;
+
+			background-color: lightGray;
+		}
+
+		@media screen and (min-aspect-ratio: 2/1) {
+			#dj {
+				width: 200vh;
+				height: 100vh;
+			}
+		}
+	</style>
+</head>
+
+<body onload="start()">
+	<canvas id="dj" width="500" height="250"></canvas>
+</body>
+</html>
