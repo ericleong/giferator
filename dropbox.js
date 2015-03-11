@@ -1,4 +1,4 @@
-function dropbox(element, playing) {
+function dropbox(element, playing, callback) {
 
 	function dragenter(e) {
 		e.stopPropagation();
@@ -23,7 +23,7 @@ function dropbox(element, playing) {
 			}
 		}
 
-		playing = play(document.getElementById('dj'), files);
+		playing = play(element, files, callback);
 	}
 
 	element.addEventListener('dragenter', dragenter, false);

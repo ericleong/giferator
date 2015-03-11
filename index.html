@@ -7,35 +7,19 @@
 
 	<title>giferator</title>
 
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
 	<script src="js/async.js"></script>
 	<script src="js/omggif.js"></script>
 	<script src="js/glif.js"></script>
+	<script src="js/gif.js"></script>
 	<script src="giferator.js"></script>
+	<script src="create.js"></script>
 	<script src="dropbox.js"></script>
-
-	<style>
-		html, body {
-			margin: 0;
-			padding: 0;
-		}
-
-		#dj {
-			width: 100vw;
-			height: 50vw;
-
-			background-color: lightGray;
-		}
-
-		@media screen and (min-aspect-ratio: 2/1) {
-			#dj {
-				width: 200vh;
-				height: 100vh;
-			}
-		}
-	</style>
 </head>
 
 <body onload="start()">
 	<canvas id="dj" width="500" height="250"></canvas>
+	<button id="create"><span id="progress"></span><span id="create_text">Create GIF</span></button>
 </body>
 </html>

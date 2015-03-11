@@ -1,36 +1,69 @@
 function start() {
-	var playing = play(document.getElementById('dj'), ['gif/sunrise.gif', 'gif/rainbow.gif']);
+	var player = document.getElementById('dj');
+	var stack = [];
 
-	dropbox(document.getElementById('dj'), playing);
+	var loaded = function(results) {
+		stack = results;
+	};
+
+	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], loaded);
+
+	dropbox(player, playing, loaded);
+
+	document.getElementById('create').addEventListener('click', function() {
+		if (stack) {
+			create(stack);
+		} else {
+			console.err('No gifs to encode!');
+		}
+	}, false);
 }
 
-function play(canvas, items) {
+function play(canvas, items, callback) {
 	var gifBuffer = [];
 	var playing = [];
 
 	async.map(items, parse, function(err, results) {
 
+		var reader = [];
+		var data = [];
+		var minWidth;
+
+		callback(results);
+
 		for (var i = 0; i < results.length; i++) {
 
-			var byteArray = new Uint8Array(results[i]);
+			data[i] = new Uint8Array(results[i]);
 
-			var gr = new GifReader(byteArray);
+			reader[i] = new GifReader(data[i]);
 
-			var info = gr.frameInfo(0);
 			var buffer = document.createElement('canvas');
 
-			buffer.width = info.width;
-			buffer.height = info.height;
+			buffer.width = reader[i].width;
+			buffer.height = reader[i].height;
 
 			gifBuffer[i] = buffer;
 
-			gliffer(buffer, gr, byteArray, function() {
-				mix(canvas, gifBuffer);
-			}, (function(index) {
-				return function(timeoutId) {
-					playing[index] = timeoutId;
-				}
-			})(i));
+			if (minWidth === undefined || buffer.width < minWidth) {
+				minWidth = buffer.width;
+			}
+		}
+
+		if (canvas) {
+
+			canvas.width = minWidth;
+			canvas.height = minWidth / 2;
+
+			for (var i = 0; i < results.length; i++) {
+
+				gliffer(gifBuffer[i], reader[i], data[i], function() {
+					mix(canvas, gifBuffer);
+				}, (function(index) {
+					return function(timeoutId) {
+						playing[index] = timeoutId;
+					}
+				})(i));
+			}
 		}
 	});
 
