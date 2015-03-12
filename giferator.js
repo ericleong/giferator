@@ -11,8 +11,15 @@ function start() {
 	dropbox(player, playing, loaded);
 
 	document.getElementById('create').addEventListener('click', function() {
-		if (stack) {
-			create(stack);
+
+		var ratio = 2; 
+
+		if (player) {
+			ratio = player.width / player.height;
+		}
+
+		if (stack && stack.length > 0) {
+			create(stack, ratio);
 		} else {
 			console.err('No gifs to encode!');
 		}
@@ -59,8 +66,10 @@ function play(canvas, items, callback) {
 
 		if (canvas && minWidth > 0) {
 
+			var oldRatio = canvas.width / canvas.height;
+
 			canvas.width = minWidth;
-			canvas.height = minWidth / 2;
+			canvas.height = minWidth / oldRatio;
 
 			for (var i = 0; i < results.length; i++) {
 

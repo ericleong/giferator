@@ -1,4 +1,4 @@
-function create(stack) {
+function create(stack, ratio) {
 	var canvas = document.createElement('canvas');
 
 	// initialize gifs
@@ -58,7 +58,7 @@ function create(stack) {
 
 	// prepare canvas
 	canvas.width = minWidth;
-	canvas.height = minWidth / 2;
+	canvas.height = minWidth / ratio;
 
 	// encoder
 	var encoder = new GIF({
