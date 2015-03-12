@@ -82,6 +82,8 @@ function play(canvas, items, callback) {
 							playing[index] = timeoutId;
 						}
 					})(i));
+				} else {
+					mix(canvas, gifBuffer);
 				}
 			}
 		}
