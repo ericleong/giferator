@@ -4,30 +4,39 @@ function create(stack) {
 	// initialize gifs
 	var gifs = [];
 
-	function initialize(gif) {
-		var byteArray = new Uint8Array(gif);
+	function initialize(item) {
 
-		var gr = new GifReader(byteArray);
+		if (item instanceof ArrayBuffer) {
+			var byteArray = new Uint8Array(item);
 
-		var buffer = document.createElement('canvas');
-		buffer.width = gr.width;
-		buffer.height = gr.height;
+			var gr = new GifReader(byteArray);
 
-		var glif = new GLIF(buffer);
+			var buffer = document.createElement('canvas');
+			buffer.width = gr.width;
+			buffer.height = gr.height;
 
-		var duration = 0;
-		for (var n = 0; n < gr.numFrames(); n++) {
-			duration += gr.frameInfo(n).delay;
+			var glif = new GLIF(buffer);
+
+			var duration = 0;
+			for (var n = 0; n < gr.numFrames(); n++) {
+				duration += gr.frameInfo(n).delay;
+			}
+
+			return {
+				data: byteArray,
+				buffer: buffer,
+				reader: gr,
+				player: glif,
+				frame_num: 0,
+				duration: duration
+			};
+		} else if (item instanceof HTMLImageElement) {
+
+			return {
+				buffer: item,
+				duration: 0
+			}
 		}
-
-		return {
-			data: byteArray,
-			buffer: buffer,
-			reader: gr,
-			player: glif,
-			frame_num: 0,
-			duration: duration
-		};
 	}
 
 	var durations = []; // ignore durations of zero
@@ -36,12 +45,14 @@ function create(stack) {
 	for (var i = 0; i < stack.length; i++) {
 		gifs[i] = initialize(stack[i]);
 
-		if (gifs[i].duration > 0) {
-			durations.push(gifs[i].duration);
-		}
+		if (gifs[i]) {
+			if (gifs[i].duration > 0) {
+				durations.push(gifs[i].duration);
+			}
 
-		if (minWidth === undefined || gifs[i].reader.width < minWidth) {
-			minWidth = gifs[i].reader.width;
+			if (minWidth === undefined || (gifs[i].buffer && gifs[i].buffer.width < minWidth)) {
+				minWidth = gifs[i].buffer.width;
+			}
 		}
 	}
 
@@ -94,21 +105,29 @@ function create(stack) {
 		// render the next frame in each gif that needs to be updated
 
 		var minDelta = null;
-		var index;
 
 		for (var i = 0; i < stack.length; i++) {
+
 			if (gifs[i].next === undefined || gifs[i].next == current) {
-				var delay = render(gifs[i]);
+
+				var delay = 0;
+
+				if (gifs[i].reader) { // is gif
+					delay = render(gifs[i]);
+				}
+
 				gifs[i].next = current + delay;
 			}
 
 			var delta = gifs[i].next - current;
 
-			if (minDelta == null || (delta > 0 && delta < minDelta)) {
+			if (delta > 0 && (minDelta == null || delta < minDelta)) {
 				minDelta = delta;
-				index = i;
 			}
 		}
+
+		// set min delta to zero if there is none
+		minDelta = minDelta > 0 ? minDelta : 0;
 
 		// draw
 

@@ -33,36 +33,47 @@ function play(canvas, items, callback) {
 
 		for (var i = 0; i < results.length; i++) {
 
-			data[i] = new Uint8Array(results[i]);
+			if (results[i] instanceof ArrayBuffer) {
+				data[i] = new Uint8Array(results[i]);
 
-			reader[i] = new GifReader(data[i]);
+				reader[i] = new GifReader(data[i]);
 
-			var buffer = document.createElement('canvas');
+				var buffer = document.createElement('canvas');
 
-			buffer.width = reader[i].width;
-			buffer.height = reader[i].height;
+				buffer.width = reader[i].width;
+				buffer.height = reader[i].height;
 
-			gifBuffer[i] = buffer;
+				gifBuffer[i] = buffer;
 
-			if (minWidth === undefined || buffer.width < minWidth) {
-				minWidth = buffer.width;
+			} else if (results[i] instanceof HTMLImageElement) {
+
+				gifBuffer[i] = results[i];
+			}
+
+			if (gifBuffer[i] && gifBuffer[i].width > 0) {
+				if (minWidth === undefined || gifBuffer[i].width < minWidth) {
+					minWidth = gifBuffer[i].width;
+				}
 			}
 		}
 
-		if (canvas) {
+		if (canvas && minWidth > 0) {
 
 			canvas.width = minWidth;
 			canvas.height = minWidth / 2;
 
 			for (var i = 0; i < results.length; i++) {
 
-				gliffer(gifBuffer[i], reader[i], data[i], function() {
-					mix(canvas, gifBuffer);
-				}, (function(index) {
-					return function(timeoutId) {
-						playing[index] = timeoutId;
-					}
-				})(i));
+				if (gifBuffer[i] && reader[i] && data[i]) { // check existence of arguments
+
+					gliffer(gifBuffer[i], reader[i], data[i], function() {
+						mix(canvas, gifBuffer);
+					}, (function(index) {
+						return function(timeoutId) {
+							playing[index] = timeoutId;
+						}
+					})(i));
+				}
 			}
 		}
 	});
@@ -113,12 +124,24 @@ function parse(item, callback) {
 		var imageType = /^image\//;
 
 		if (!imageType.test(item.type)) {
-			callback('File is not image.');
+			callback(item.name + ' is not an image.');
 		}
 
-		var reader = new FileReader();
-		reader.onload = (function(cb) { return function(e) { cb(null, e.target.result); }; })(callback);
-		reader.readAsArrayBuffer(item);
+		var gifType = /^image\/gif/;
+
+		if (gifType.test(item.type)) {
+			var reader = new FileReader();
+			reader.onload = (function(cb) { return function(e) { cb(null, e.target.result); }; })(callback);
+			reader.readAsArrayBuffer(item);
+		} else {
+			var img = document.createElement('img');
+			img.onload = function() {
+				window.URL.revokeObjectURL(this.src);
+
+				callback(null, this);
+			};
+			img.src = window.URL.createObjectURL(item);
+		}
 	} else {
 		download(item, callback);
 	}
