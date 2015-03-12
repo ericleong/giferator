@@ -1,13 +1,5 @@
 function create(stack) {
-	// var canvas = document.createElement('canvas');
-	var canvas = document.getElementById('dj');
-
-	// encoder
-	var encoder = new GIF({
-		workers: 2,
-		quality: 2,
-		workerScript: './js/gif.worker.js'
-	});
+	var canvas = document.createElement('canvas');
 
 	// initialize gifs
 	var gifs = [];
@@ -38,12 +30,15 @@ function create(stack) {
 		};
 	}
 
-	var durations = [];
+	var durations = []; // ignore durations of zero
 	var minWidth;
 
 	for (var i = 0; i < stack.length; i++) {
 		gifs[i] = initialize(stack[i]);
-		durations[i] = gifs[i].duration;
+
+		if (gifs[i].duration > 0) {
+			durations.push(gifs[i].duration);
+		}
 
 		if (minWidth === undefined || gifs[i].reader.width < minWidth) {
 			minWidth = gifs[i].reader.width;
@@ -53,6 +48,15 @@ function create(stack) {
 	// prepare canvas
 	canvas.width = minWidth;
 	canvas.height = minWidth / 2;
+
+	// encoder
+	var encoder = new GIF({
+		workers: 2,
+		quality: 2,
+		width: canvas.width,
+		height: canvas.height,
+		workerScript: './js/gif.worker.js'
+	});
 
 	// render
 
@@ -75,9 +79,17 @@ function create(stack) {
 
 	// loop
 
-	var current = 0; // current time in milliseconds * 10
+ 	// time in milliseconds * 10
+	var current = 0;
+	var end = 0;
 
-	while (current < lcms(durations)) {
+	if (durations.length > 0) {
+		end = lcms(durations);
+	} else {
+		end = 1; // some number greater than zero
+	}
+
+	while (current < end) {
 
 		// render the next frame in each gif that needs to be updated
 
@@ -92,7 +104,7 @@ function create(stack) {
 
 			var delta = gifs[i].next - current;
 
-			if (minDelta == null || delta < minDelta) {
+			if (minDelta == null || (delta > 0 && delta < minDelta)) {
 				minDelta = delta;
 				index = i;
 			}
@@ -118,7 +130,12 @@ function create(stack) {
 			delay: minDelta * 10
 		});
 		
-		current += minDelta;
+		if (minDelta > 0) {
+			current += minDelta;
+		} else {
+			// only happens for still images
+			current = end;
+		}
 	}
 
 	encoder.on('progress', function(progress) {
