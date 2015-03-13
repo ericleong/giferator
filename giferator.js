@@ -14,18 +14,33 @@ function start() {
 
 	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
 
-	dropbox(player, playing, blend, loaded);
+	dropbox(player, playing, blendMode, loaded);
+
+	document.getElementById('ratio').addEventListener('change', function() {
+		
+		if (this.value) {
+			var dimensions = this.value.split(':');
+
+			if (dimensions.length == 2 && dimensions[0] > 0 && dimensions[1] > 0) {
+				var ratio = dimensions[0] / dimensions[1];
+
+				player.height = player.width / ratio;
+			}
+		}
+	}, false);
 
 	document.getElementById('create').addEventListener('click', function() {
 
-		var ratio = 2; 
+		var width = 0;
+		var height = 0;
 
 		if (player) {
-			ratio = player.width / player.height;
+			width = player.width;
+			height = player.height;
 		}
 
 		if (stack && stack.length > 0) {
-			create(stack, ratio, blendMode());
+			create(stack, width, height, blendMode());
 		} else {
 			console.err('No gifs to encode!');
 		}

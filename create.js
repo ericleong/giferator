@@ -1,4 +1,4 @@
-function create(stack, ratio, blendMode) {
+function create(stack, width, height, blendMode) {
 	var canvas = document.createElement('canvas');
 
 	// initialize gifs
@@ -57,8 +57,13 @@ function create(stack, ratio, blendMode) {
 	}
 
 	// prepare canvas
-	canvas.width = minWidth;
-	canvas.height = minWidth / ratio;
+	if (width > 0 && height > 0) {
+		canvas.width = width;
+		canvas.height = height;
+	} else {
+		canvas.width = minWidth;
+		canvas.height = minWidth; // default ratio of 1:1
+	}
 
 	// encoder
 	var encoder = new GIF({

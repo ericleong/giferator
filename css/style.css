@@ -18,9 +18,8 @@ html, body {
 	}
 }
 
-#create, #blend {
+#create, #blend, #ratio {
 	height: 60px;
-	width: 50%;
 	color: white;
 	font-size: 30px;
 
@@ -33,6 +32,7 @@ html, body {
 }
 
 #create {
+	width: 50%;
 	background-color: #607D8B;
 }
 
@@ -54,8 +54,17 @@ html, body {
 	top: 0;
 }
 
-#blend {
+#ratio, #blend {
+	width: 25%;
+	padding-left: 2.5%;
 	-moz-appearance: none;
 	-webkit-appearance: none;
+}
+
+#blend {
+	background-color: #616161;
+}
+
+#ratio {
 	background-color: #757575;
 }
