@@ -20,6 +20,24 @@
 
 <body onload="start()">
 	<canvas id="dj" width="500" height="250"></canvas>
-	<button id="create"><span id="progress"></span><span id="create_text">Create GIF</span></button>
+	<div>
+		<select id="blend">
+			<option value="difference">difference</option>
+			<option value="multiply">multiply</option>
+			<option selected value="screen">screen</option>
+			<option value="overlay">overlay</option>
+			<option value="darken">darken</option>
+			<option value="lighten">lighten</option>
+			<option value="color-dodge">color-dodge</option>
+			<option value="color-burn">color-burn</option>
+			<option value="hard-light">hard-light</option>
+			<option value="soft-light">soft-light</option>
+			<option value="exclusion">exclusion</option>
+			<option value="hue">hue</option>
+			<option value="saturation">saturation</option>
+			<option value="color">color</option>
+			<option value="luminosity">luminosity</option>
+		</select><button id="create"><span id="progress"></span><span id="create_text">Create GIF</span></button>
+	</div>
 </body>
 </html>

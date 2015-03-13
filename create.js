@@ -1,4 +1,4 @@
-function create(stack, ratio) {
+function create(stack, ratio, blendMode) {
 	var canvas = document.createElement('canvas');
 
 	// initialize gifs
@@ -136,7 +136,7 @@ function create(stack, ratio) {
 		context.globalCompositeOperation = 'source-over';
 		cover(context, gifs[0].buffer, canvas);
 
-		context.globalCompositeOperation = 'screen';
+		context.globalCompositeOperation = blendMode;
 
 		for (var i = 1; i < gifs.length; i++) {
 			cover(context, gifs[i].buffer, canvas);

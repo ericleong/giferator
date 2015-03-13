@@ -2,13 +2,19 @@ function start() {
 	var player = document.getElementById('dj');
 	var stack = [];
 
+	var blendMode = function() {
+		var blend = document.getElementById('blend');
+		return blend.value;
+	}
+
+	// save downloaded data
 	var loaded = function(results) {
 		stack = results;
 	};
 
-	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], loaded);
+	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
 
-	dropbox(player, playing, loaded);
+	dropbox(player, playing, blend, loaded);
 
 	document.getElementById('create').addEventListener('click', function() {
 
@@ -19,14 +25,14 @@ function start() {
 		}
 
 		if (stack && stack.length > 0) {
-			create(stack, ratio);
+			create(stack, ratio, blendMode());
 		} else {
 			console.err('No gifs to encode!');
 		}
 	}, false);
 }
 
-function play(canvas, items, callback) {
+function play(canvas, items, blendMode, callback) {
 	var gifBuffer = [];
 	var playing = [];
 
@@ -76,7 +82,7 @@ function play(canvas, items, callback) {
 				if (gifBuffer[i] && reader[i] && data[i]) { // check existence of arguments
 
 					gliffer(gifBuffer[i], reader[i], data[i], function() {
-						mix(canvas, gifBuffer);
+						mix(canvas, gifBuffer, blendMode());
 					}, (function(index) {
 						return function(timeoutId) {
 							playing[index] = timeoutId;
@@ -92,7 +98,7 @@ function play(canvas, items, callback) {
 	return playing;
 }
 
-function mix(canvas, buffers) {
+function mix(canvas, buffers, blendMode) {
 
 	var context = canvas.getContext('2d');
 
@@ -101,7 +107,7 @@ function mix(canvas, buffers) {
 		cover(context, buffers[0], canvas);
 
 		context.save();
-		context.globalCompositeOperation = 'screen';
+		context.globalCompositeOperation = blendMode;
 
 		for (var i = 1; i < buffers.length; i++) {
 			cover(context, buffers[i], canvas);

@@ -18,19 +18,26 @@ html, body {
 	}
 }
 
-#create {
+#create, #blend {
 	height: 60px;
-	width: 100%;
+	width: 50%;
 	color: white;
 	font-size: 30px;
 
 	cursor: pointer;
-	display: block;
-	background-color: #607D8B;
+	display: inline-block;
 	position: relative;
 
 	border: none;
 	outline: none;
+}
+
+#create {
+	background-color: #607D8B;
+}
+
+#create:hover {
+	background-color: #2196F3;
 }
 
 #create_text {
@@ -47,6 +54,8 @@ html, body {
 	top: 0;
 }
 
-#create:hover, .share:hover {
-	background-color: #2196F3;
+#blend {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	background-color: #757575;
 }
