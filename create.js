@@ -1,4 +1,4 @@
-function create(stack, width, height, blendMode) {
+function create(stack, width, height, blendMode, progress, finish) {
 	var canvas = document.createElement('canvas');
 
 	// initialize gifs
@@ -162,20 +162,9 @@ function create(stack, width, height, blendMode) {
 		}
 	}
 
-	encoder.on('progress', function(progress) {
+	encoder.on('progress', progress);
 
-		var p = progress * 100;
-
-		document.getElementById('progress').style.width = p + '%';
-		document.getElementById('create_text').textContent = Math.ceil(p) + '%';
-	})
-
-	encoder.on('finished', function(blob) {
-		window.open(URL.createObjectURL(blob));
-
-		document.getElementById('progress').style.width = '0%';
-		document.getElementById('create_text').textContent = 'Create GIF';
-	});
+	encoder.on('finished', finish);
 
 	encoder.render();
 }

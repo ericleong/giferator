@@ -41,7 +41,21 @@ function start() {
 		}
 
 		if (stack && stack.length > 0) {
-			create(stack, width, height, blendMode());
+			create(stack, width, height, blendMode(), function(progress) {
+
+				var p = progress * 100;
+
+				document.getElementById('progress').style.width = p + '%';
+				document.getElementById('create_text').textContent = Math.ceil(p) + '%';
+			}, function(blob) {
+				var anchor = document.createElement('a');
+				anchor.setAttribute('href', URL.createObjectURL(blob));
+				anchor.setAttribute('download', 'giferator.gif');
+				anchor.click();
+
+				document.getElementById('progress').style.width = '0%';
+				document.getElementById('create_text').textContent = 'Create GIF';
+			});
 		} else {
 			console.err('No gifs to encode!');
 		}
