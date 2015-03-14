@@ -15,6 +15,7 @@ function start() {
 	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
 
 	dropbox(player, playing, blendMode, loaded);
+	choose(document.getElementById('chooser'), player, playing, blendMode, loaded);
 
 	document.getElementById('ratio').addEventListener('change', function() {
 		
