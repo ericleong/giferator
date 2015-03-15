@@ -1,10 +1,13 @@
 function start() {
-	var player = document.getElementById('dj');
+	var player = document.getElementById('player');
 	var stack = [];
 
 	var blendMode = function() {
 		var blend = document.getElementById('blend');
-		return blend.value;
+		
+		if (blend) {
+			return blend.value;
+		}
 	}
 
 	// save downloaded data
@@ -15,51 +18,60 @@ function start() {
 	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
 
 	dropbox(player, playing, blendMode, loaded);
-	choose(document.getElementById('chooser'), player, playing, blendMode, loaded);
+	var chooser = document.getElementById('chooser');
+	if (chooser) {
+		choose(chooser, player, playing, blendMode, loaded);
+	}
 
-	document.getElementById('ratio').addEventListener('change', function() {
-		
-		if (this.value) {
-			var dimensions = this.value.split(':');
+	var ratioPicker = document.getElementById('ratio');
+	if (ratioPicker) {
+		ratioPicker.addEventListener('change', function() {
 
-			if (dimensions.length == 2 && dimensions[0] > 0 && dimensions[1] > 0) {
-				var ratio = dimensions[0] / dimensions[1];
+			if (this.value) {
+				var dimensions = this.value.split(':');
 
-				player.height = player.width / ratio;
+				if (dimensions.length == 2 && dimensions[0] > 0 && dimensions[1] > 0) {
+					var ratio = dimensions[0] / dimensions[1];
+
+					player.height = player.width / ratio;
+				}
 			}
-		}
-	}, false);
+		}, false);
+	}
 
-	document.getElementById('create').addEventListener('click', function() {
+	var createButton = document.getElementById('create');
+	if (createButton) {
+		createButton.addEventListener('click', function() {
 
-		var width = 0;
-		var height = 0;
+			var width = 0;
+			var height = 0;
 
-		if (player) {
-			width = player.width;
-			height = player.height;
-		}
+			if (player) {
+				width = player.width;
+				height = player.height;
+			}
 
-		if (stack && stack.length > 0) {
-			create(stack, width, height, blendMode(), function(progress) {
+			if (stack && stack.length > 0) {
+				create(stack, width, height, blendMode(), function(progress) {
 
-				var p = progress * 100;
+					var p = progress * 100;
 
-				document.getElementById('progress').style.width = p + '%';
-				document.getElementById('create_text').textContent = Math.ceil(p) + '%';
-			}, function(blob) {
-				var anchor = document.createElement('a');
-				anchor.setAttribute('href', URL.createObjectURL(blob));
-				anchor.setAttribute('download', 'giferator.gif');
-				anchor.click();
+					document.getElementById('progress').style.width = p + '%';
+					document.getElementById('create_text').textContent = Math.ceil(p) + '%';
+				}, function(blob) {
+					var anchor = document.createElement('a');
+					anchor.setAttribute('href', URL.createObjectURL(blob));
+					anchor.setAttribute('download', 'giferator.gif');
+					anchor.click();
 
-				document.getElementById('progress').style.width = '0%';
-				document.getElementById('create_text').textContent = 'Create GIF';
-			});
-		} else {
-			console.err('No gifs to encode!');
-		}
-	}, false);
+					document.getElementById('progress').style.width = '0%';
+					document.getElementById('create_text').textContent = 'Create GIF';
+				});
+			} else {
+				console.err('No gifs to encode!');
+			}
+		}, false);
+	}
 }
 
 function play(canvas, items, blendMode, callback) {
@@ -103,6 +115,12 @@ function play(canvas, items, blendMode, callback) {
 		if (canvas && minWidth > 0) {
 
 			var oldRatio = canvas.width / canvas.height;
+
+			// workaround for object-fit: contain; bug in chromium/blink
+			// https://code.google.com/p/chromium/issues/detail?id=467409
+			if (Boolean(window.chrome)) {
+				minWidth = 180;
+			}
 
 			canvas.width = minWidth;
 			canvas.height = minWidth / oldRatio;
@@ -166,7 +184,12 @@ function cover(context, input, output) {
 }
 
 function parse(item, callback) {
-	if (item instanceof File) {
+
+	if (item instanceof ArrayBuffer || item instanceof HTMLImageElement) {
+
+		callback(null, item);
+
+	} else if (item instanceof File) {
 
 		var imageType = /^image\//;
 
@@ -181,6 +204,7 @@ function parse(item, callback) {
 			reader.onload = (function(cb) { return function(e) { cb(null, e.target.result); }; })(callback);
 			reader.readAsArrayBuffer(item);
 		} else {
+			// not a gif but still an image
 			var img = document.createElement('img');
 			img.onload = function() {
 				window.URL.revokeObjectURL(this.src);
@@ -190,7 +214,17 @@ function parse(item, callback) {
 			img.src = window.URL.createObjectURL(item);
 		}
 	} else {
-		download(item, callback);
+		if (item.length && item.lastIndexOf && (item.lastIndexOf('.jpg') == item.length - 4 || item.lastIndexOf('.png') == item.length - 4)) {
+
+			// if it seems like a static image, load it like an image.
+			var img = document.createElement('img');
+			img.onload = function() {
+				callback(null, this);
+			};
+			img.src = item;
+		} else {
+			download(item, callback);
+		}
 	}
 }
 
@@ -205,7 +239,11 @@ function download(url, callback) {
 		} else {
 			callback('No response.');
 		}
-	}
+	};
+
+	oReq.onerror = function() {
+		console.error('Could not load file from ' + url);
+	};
 
 	oReq.open('GET', url, true);
 	oReq.responseType = 'arraybuffer';

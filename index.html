@@ -5,7 +5,15 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
+	<meta name="theme-color" content="#212121">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
 	<title>giferator</title>
+
+	<link rel="manifest" href="manifest.json">
+	<link rel="icon" sizes="16x16" href="icon/favicon.png">
+	<link rel="icon" sizes="192x192" href="icon/launcher-4x.png">
 
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 
@@ -19,11 +27,12 @@
 </head>
 
 <body onload="start()">
-	<canvas id="dj" width="500" height="250"></canvas>
+	<canvas id="player" width="500" height="250"></canvas>
 	<div>
 		<div id="chooser-wrapper">
 			<input id="chooser" type="file" multiple />
-		</div><select id="ratio">
+		</div>
+		<select id="ratio">
 			<option selected value="2:1">2:1</option>
 			<option value="3:2">3:2</option>
 			<option value="4:3">4:3</option>
@@ -33,7 +42,8 @@
 			<option value="3:4">3:4</option>
 			<option value="2:3">2:3</option>
 			<option value="1:2">1:2</option>
-		</select><select id="blend">
+		</select>
+		<select id="blend">
 			<option value="difference">difference</option>
 			<option value="multiply">multiply</option>
 			<option selected value="screen">screen</option>
@@ -49,7 +59,10 @@
 			<option value="saturation">saturation</option>
 			<option value="color">color</option>
 			<option value="luminosity">luminosity</option>
-		</select><button id="create"><span id="progress"></span><span id="create_text">Create GIF</span></button>
+		</select>
+		<button id="create">
+			<span id="progress"></span><span id="create_text">Create GIF</span>
+		</button>
 	</div>
 </body>
 </html>

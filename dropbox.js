@@ -16,10 +16,39 @@ function dropbox(element, playing, blendMode, callback) {
 
 		var dt = e.dataTransfer;
 
-		if (dt && dt.files) {
-			stop(playing);
+		if (dt) {
 
-			playing = play(element, dt.files, blendMode, callback);
+			if (dt.files && dt.files.length > 0) {
+
+				stop(playing);
+
+				playing = play(element, dt.files, blendMode, callback);
+			} else {
+
+				// split by 'http' because '\n' is not always there
+				var links = dt.getData('text/uri-list').split('http');
+
+				if (links && links.length > 0) {
+
+					var validLinks = [];
+
+					for (var i = 0; i < links.length; i++) {
+						var link = links[i];
+
+						if (link && link.length > 0 && link.indexOf('#') < 0) {
+							
+							// add the http back to the link
+							validLinks.push('http' + link);
+						}
+					}
+
+					if (validLinks.length > 0) {
+						stop(playing);
+
+						playing = play(element, validLinks, blendMode, callback);
+					}
+				}
+			}
 		}
 	}
 
