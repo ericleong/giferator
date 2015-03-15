@@ -58,8 +58,13 @@ function create(stack, width, height, blendMode, progress, finish) {
 
 	// prepare canvas
 	if (width > 0 && height > 0) {
-		canvas.width = width;
-		canvas.height = height;
+		if (Boolean(window.chrome)) {
+			canvas.width = minWidth;
+			canvas.height = minWidth / (width / height);
+		} else {
+			canvas.width = width;
+			canvas.height = height;
+		}
 	} else {
 		canvas.width = minWidth;
 		canvas.height = minWidth; // default ratio of 1:1
