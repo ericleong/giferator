@@ -1,3 +1,4 @@
+/* global async */
 function start() {
 	var player = document.getElementById('player');
 	var stack = [];
@@ -125,21 +126,18 @@ function play(canvas, items, blendMode, callback) {
 			canvas.width = minWidth;
 			canvas.height = minWidth / oldRatio;
 
-			for (var i = 0; i < results.length; i++) {
-
+			results.forEach(function(result, i) {
 				if (gifBuffer[i] && reader[i] && data[i]) { // check existence of arguments
 
 					gliffer(gifBuffer[i], reader[i], data[i], function() {
 						mix(canvas, gifBuffer, blendMode());
-					}, (function(index) {
-						return function(timeoutId) {
-							playing[index] = timeoutId;
-						}
-					})(i));
+					}, function(timeoutId) {
+						playing[i] = timeoutId;
+					});
 				} else {
 					mix(canvas, gifBuffer);
 				}
-			}
+			});
 		}
 	});
 
@@ -167,6 +165,7 @@ function mix(canvas, buffers, blendMode) {
 
 function cover(context, input, output) {
 
+	var width, height;
 	var inputRatio = input.width / input.height;
 	var outputRatio = output.width / output.height;
 

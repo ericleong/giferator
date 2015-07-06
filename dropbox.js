@@ -1,3 +1,4 @@
+/* global play */
 function dropbox(element, playing, blendMode, callback) {
 
 	function dragenter(e) {
@@ -57,7 +58,7 @@ function dropbox(element, playing, blendMode, callback) {
 	element.addEventListener('drop', drop, false);
 }
 
-function choose(element, canvas, playing, blendMode, callback) {
+var choose = function(element, canvas, playing, blendMode, callback) {
 	function update(e) {
 		if (this && this.files && this.files.length > 0) {
 			stop(playing);
@@ -67,7 +68,7 @@ function choose(element, canvas, playing, blendMode, callback) {
 	}
 
 	element.addEventListener('change', update, false);
-}
+};
 
 function stop(playing) {
 	if (playing && playing.length > 0) {

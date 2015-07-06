@@ -1,3 +1,7 @@
+/* global GIF */
+/* global GLIF */
+/* global GifReader */
+/* global cover */
 function create(stack, width, height, blendMode, progress, finish) {
 	var canvas = document.createElement('canvas');
 
@@ -35,7 +39,7 @@ function create(stack, width, height, blendMode, progress, finish) {
 			return {
 				buffer: item,
 				duration: 0
-			}
+			};
 		}
 	}
 
@@ -189,7 +193,7 @@ var lcm = function(a, b) {
 	}
 
 	return Math.abs(a * b) / gcd(a, b);
-}
+};
 
 var lcms = function(numbers) {
 	var result = numbers[0];
@@ -199,4 +203,4 @@ var lcms = function(numbers) {
 	}
 
 	return result;
-}
+};
