@@ -1,3 +1,5 @@
+![giferator logo](icon/launcher-2x.png?raw=true)
+
 # giferator
 
 giferator blends gifs and images using the html canvas.
