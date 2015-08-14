@@ -17,12 +17,16 @@ function start() {
 	};
 
 	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
-
-	dropbox(player, playing, blendMode, loaded);
-	var chooser = document.getElementById('chooser');
-	if (chooser) {
-		choose(chooser, player, playing, blendMode, loaded);
-	}
+	
+	droppick(player, document.getElementById('chooser'), function(items) {
+		if (playing && playing.length > 0) {
+			for (var i = 0; i < playing.length; i++) {
+				clearTimeout(playing[i]);
+			}
+		}
+		
+		playing = play(player, items, blendMode, loaded);
+	});
 
 	var ratioPicker = document.getElementById('ratio');
 	if (ratioPicker) {
@@ -75,7 +79,7 @@ function start() {
 	}
 }
 
-function play(canvas, items, blendMode, callback) {
+var play = function(canvas, items, blendMode, callback) {
 	var gifBuffer = [];
 	var playing = [];
 
@@ -163,7 +167,7 @@ function mix(canvas, buffers, blendMode) {
 	}
 }
 
-function cover(context, input, output) {
+var cover = function(context, input, output) {
 
 	var width, height;
 	var inputRatio = input.width / input.height;
