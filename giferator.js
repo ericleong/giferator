@@ -133,10 +133,10 @@ var play = function(canvas, items, blendMode, callback) {
 			results.forEach(function(result, i) {
 				if (gifBuffer[i] && reader[i] && data[i]) { // check existence of arguments
 
-					gliffer(gifBuffer[i], reader[i], data[i], function() {
-						mix(canvas, gifBuffer, blendMode());
-					}, function(timeoutId) {
+					gliffer(gifBuffer[i], reader[i], data[i], function(timeoutId) {
 						playing[i] = timeoutId;
+						
+						mix(canvas, gifBuffer, blendMode());
 					});
 				} else {
 					mix(canvas, gifBuffer);
@@ -253,7 +253,7 @@ function download(url, callback) {
 	oReq.send();
 }
 
-function gliffer(canvas, gr, byteArray, callback, update) {
+function gliffer(canvas, gr, byteArray, callback) {
 	
 	var glif = new GLIF(canvas);
 	
@@ -275,9 +275,7 @@ function gliffer(canvas, gr, byteArray, callback, update) {
 		gr.decodeAndGLIF(frame_num, glif);
 		frame_num++;
 
-		callback();
-
-		update(setTimeout(draw, frame_info.delay * 10));
+		callback(setTimeout(draw, frame_info.delay * 10));
 	}
 
 	if (glif.gl) {
