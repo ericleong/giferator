@@ -153,6 +153,8 @@ function mix(canvas, buffers, blendMode) {
 	var context = canvas.getContext('2d');
 
 	if (buffers.length > 0) {
+		
+		context.clearRect(0, 0, canvas.width, canvas.height);
 
 		cover(context, buffers[0], canvas);
 
@@ -264,13 +266,6 @@ function gliffer(canvas, gr, byteArray, callback) {
 
 		frame_num = frame_num % gr.numFrames();
 		frame_info = gr.frameInfo(frame_num);
-
-		glif.updateTransparency(frame_info.transparent_index);
-		glif.updatePalette(byteArray.subarray(frame_info.palette_offset, frame_info.palette_offset + 256 * 3), 256);
-
-		if (frame_num == 0) {
-			glif.clear();
-		}
 
 		gr.decodeAndGLIF(frame_num, glif);
 		frame_num++;

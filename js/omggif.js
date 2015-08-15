@@ -354,10 +354,10 @@ function GifWriterOutputLZWCodeStream(buf, p, min_code_size, index_stream) {
 function GifReader(buf) {
   var p = 0;
 
-  // - Header.
-  if (buf[p++] !== 0x47 || buf[p++] !== 0x49 || buf[p++] !== 0x46 ||  // GIF
-      buf[p++] !== 0x38 || buf[p++] !== 0x39 || buf[p++] !== 0x61) {  // 89a
-    throw "Invalid GIF 89a header.";
+  // - Header (GIF87a or GIF89a).
+  if (buf[p++] !== 0x47 ||            buf[p++] !== 0x49 || buf[p++] !== 0x46 ||
+      buf[p++] !== 0x38 || (buf[p++]+1 & 0xfd) !== 0x38 || buf[p++] !== 0x61) {
+    throw "Invalid GIF 87a/89a header.";
   }
 
   // - Logical Screen Descriptor.
@@ -376,8 +376,6 @@ function GifReader(buf) {
     global_palette_offset = p;
     p += num_global_colors * 3;  // Seek past palette.
   }
-
-  var loop_count = null;
 
   var no_eof = true;
 
@@ -495,6 +493,10 @@ function GifReader(buf) {
     return frames.length;
   };
 
+  this.loopCount = function() {
+    return loop_count;
+  };
+
   this.frameInfo = function(frame_num) {
     if (frame_num < 0 || frame_num >= frames.length)
       throw "Frame index out of range.";
@@ -532,7 +534,7 @@ function GifReader(buf) {
     // Use scanstride to skip past the rows when interlacing.  This is skipping
     // 7 rows for the first two passes, then 3 then 1.
     if (frame.interlaced === true) {
-      scanstride += (framewidth + framestride) * 4 * 7;  // Pass 1.
+      scanstride += width * 4 * 7;  // Pass 1.
     }
 
     var interlaceskip = 8;  // Tracking the row interval in the current pass.
@@ -544,8 +546,7 @@ function GifReader(buf) {
         op += scanstride;
         xleft = framewidth;
         if (op >= opend) { // Catch the wrap to switch passes when interlacing.
-          scanstride =
-              framestride + (framewidth + framestride) * 4 * (interlaceskip-1);
+          scanstride = framestride * 4 + width * 4 * (interlaceskip-1);
           // interlaceskip / 2 * 4 is interlaceskip << 1.
           op = opbeg + (framewidth + framestride) * (interlaceskip << 1);
           interlaceskip >>= 1;
@@ -599,7 +600,7 @@ function GifReader(buf) {
     // Use scanstride to skip past the rows when interlacing.  This is skipping
     // 7 rows for the first two passes, then 3 then 1.
     if (frame.interlaced === true) {
-      scanstride += (framewidth + framestride) * 4 * 7;  // Pass 1.
+      scanstride += width * 4 * 7;  // Pass 1.
     }
 
     var interlaceskip = 8;  // Tracking the row interval in the current pass.
@@ -611,8 +612,7 @@ function GifReader(buf) {
         op += scanstride;
         xleft = framewidth;
         if (op >= opend) { // Catch the wrap to switch passes when interlacing.
-          scanstride =
-              framestride + (framewidth + framestride) * 4 * (interlaceskip-1);
+          scanstride = framestride * 4 + width * 4 * (interlaceskip-1);
           // interlaceskip / 2 * 4 is interlaceskip << 1.
           op = opbeg + (framewidth + framestride) * (interlaceskip << 1);
           interlaceskip >>= 1;
@@ -637,12 +637,25 @@ function GifReader(buf) {
   // Let the GPU convert indices to rgb
   this.decodeAndGLIF = function(frame_num, glif) {
     var frame = this.frameInfo(frame_num);
+    
+    glif.updateTransparency(frame.transparent_index);
+    
+    var num_colors = num_global_colors;
+    if (frame.has_local_palette) {
+      num_colors = frame.data_offset - frame.palette_offset;
+    }
+    num_colors = num_colors > 256 ? 256 : num_colors;
+    
+    var palette = new Uint8Array(3 * 256);
+    palette.set(buf.subarray(frame.palette_offset, frame.palette_offset + 3 * num_colors));
+    glif.updatePalette(palette);
+    
     var num_pixels = frame.width * frame.height;
     var index_stream = new Uint8Array(num_pixels);  // At most 8-bit indices.
     GifReaderLZWOutputIndexStream(
         buf, frame.data_offset, index_stream, num_pixels);
 
-    glif.next(index_stream, frame.x, frame.y, frame.width, frame.height);
+    glif.next(index_stream, frame.x, frame.y, frame.width, frame.height, frame.disposal);
   };
 }
 
