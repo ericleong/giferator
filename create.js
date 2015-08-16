@@ -4,6 +4,7 @@
 /* global cover */
 function create(stack, width, height, blendMode, progress, finish) {
 	var canvas = document.createElement('canvas');
+	var context = canvas.getContext('2d');
 
 	// initialize gifs
 	var gifs = [];
@@ -27,7 +28,6 @@ function create(stack, width, height, blendMode, progress, finish) {
 			}
 
 			return {
-				data: byteArray,
 				buffer: buffer,
 				reader: gr,
 				player: glif,
@@ -80,6 +80,8 @@ function create(stack, width, height, blendMode, progress, finish) {
 		quality: 2,
 		width: canvas.width,
 		height: canvas.height,
+		background: '#fff',
+		transparent: 0x000000,
 		workerScript: './js/gif.worker.js'
 	});
 
@@ -88,9 +90,6 @@ function create(stack, width, height, blendMode, progress, finish) {
 	function render(gif) {
 		gif.frame_num = gif.frame_num % gif.reader.numFrames();
 		var frame_info = gif.reader.frameInfo(gif.frame_num);
-
-		gif.player.updateTransparency(frame_info.transparent_index);
-		gif.player.updatePalette(gif.data.subarray(frame_info.palette_offset, frame_info.palette_offset + 256 * 3), 256);
 
 		if (gif.frame_num == 0) {
 			gif.player.clear();
@@ -144,17 +143,17 @@ function create(stack, width, height, blendMode, progress, finish) {
 		minDelta = minDelta > 0 ? minDelta : 0;
 
 		// draw
-
-		var context = canvas.getContext('2d');
-
-		context.globalCompositeOperation = 'source-over';
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		cover(context, gifs[0].buffer, canvas);
 
+		context.save();
 		context.globalCompositeOperation = blendMode;
 
 		for (var i = 1; i < gifs.length; i++) {
 			cover(context, gifs[i].buffer, canvas);
 		}
+		
+		context.restore();
 
 		// add to encoder
 

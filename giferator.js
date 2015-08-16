@@ -1,3 +1,5 @@
+/* global viewer */
+/* global GifReader */
 /* global async */
 function start() {
 	var player = document.getElementById('player');
@@ -86,7 +88,6 @@ var play = function(canvas, items, blendMode, callback) {
 	async.map(items, parse, function(err, results) {
 
 		var reader = [];
-		var data = [];
 		var minWidth;
 
 		callback(results);
@@ -94,9 +95,7 @@ var play = function(canvas, items, blendMode, callback) {
 		for (var i = 0; i < results.length; i++) {
 
 			if (results[i] instanceof ArrayBuffer) {
-				data[i] = new Uint8Array(results[i]);
-
-				reader[i] = new GifReader(data[i]);
+				reader[i] = new GifReader(new Uint8Array(results[i]));
 
 				var buffer = document.createElement('canvas');
 
@@ -131,13 +130,15 @@ var play = function(canvas, items, blendMode, callback) {
 			canvas.height = minWidth / oldRatio;
 
 			results.forEach(function(result, i) {
-				if (gifBuffer[i] && reader[i] && data[i]) { // check existence of arguments
+				if (gifBuffer[i] && reader[i]) { // check existence of arguments
 
-					gliffer(gifBuffer[i], reader[i], data[i], function(timeoutId) {
+					var view = viewer(gifBuffer[i], reader[i], function(timeoutId) {
 						playing[i] = timeoutId;
 						
 						mix(canvas, gifBuffer, blendMode());
 					});
+					
+					playing[i] = view();
 				} else {
 					mix(canvas, gifBuffer);
 				}
@@ -253,27 +254,4 @@ function download(url, callback) {
 	oReq.open('GET', url, true);
 	oReq.responseType = 'arraybuffer';
 	oReq.send();
-}
-
-function gliffer(canvas, gr, byteArray, callback) {
-	
-	var glif = new GLIF(canvas);
-	
-	var frame_num = 0;
-	var frame_info;
-
-	function draw() {
-
-		frame_num = frame_num % gr.numFrames();
-		frame_info = gr.frameInfo(frame_num);
-
-		gr.decodeAndGLIF(frame_num, glif);
-		frame_num++;
-
-		callback(setTimeout(draw, frame_info.delay * 10));
-	}
-
-	if (glif.gl) {
-		draw();
-	}
 }
