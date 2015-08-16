@@ -82,7 +82,7 @@ function create(stack, width, height, blendMode, progress, finish) {
 		height: canvas.height,
 		background: '#fff',
 		transparent: 0x000000,
-		workerScript: './js/gif.worker.js'
+		workerScript: './node_modules/gif.js/dist/gif.worker.js'
 	});
 
 	// render

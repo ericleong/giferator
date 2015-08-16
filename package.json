@@ -1,0 +1,30 @@
+{
+  "name": "giferator",
+  "version": "0.1.0",
+  "description": "Use canvas blend modes to combine gifs and images.",
+  "main": "giferator.js",
+  "dependencies": {
+    "gif.js": "^0.1.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericleong/giferator.git"
+  },
+  "keywords": [
+    "canvas",
+    "blend",
+    "gif",
+    "image",
+    "processing"
+  ],
+  "author": "Eric Leong <me@ericleong.me> (http://ericleong.me)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericleong/giferator/issues"
+  },
+  "homepage": "https://github.com/ericleong/giferator#readme"
+}

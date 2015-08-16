@@ -1,0 +1,32 @@
+{
+  "name": "giferator",
+  "main": "giferator.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ericleong/giferator",
+  "authors": [
+    "Eric Leong <me@ericleong.me> (http://ericleong.me)"
+  ],
+  "description": "Use canvas blend modes to combine gifs and images.",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "canvas",
+    "blend",
+    "gif",
+    "image",
+    "processing"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "glif.js": "~1.0.0",
+    "async": "~1.4.2"
+  }
+}
