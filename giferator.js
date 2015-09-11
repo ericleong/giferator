@@ -120,12 +120,6 @@ var play = function(canvas, items, blendMode, callback) {
 
 			var oldRatio = canvas.width / canvas.height;
 
-			// workaround for object-fit: contain; bug in chromium/blink
-			// https://code.google.com/p/chromium/issues/detail?id=467409
-			if (Boolean(window.chrome)) {
-				minWidth = 180;
-			}
-
 			canvas.width = minWidth;
 			canvas.height = minWidth / oldRatio;
 
