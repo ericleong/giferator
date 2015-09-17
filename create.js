@@ -59,7 +59,7 @@ function create(stack, width, height, blendMode, progress, finish) {
 			}
 		}
 	}
-
+	
 	// prepare canvas
 	if (width > 0 && height > 0) {
 		if (Boolean(window.chrome)) {
@@ -72,6 +72,27 @@ function create(stack, width, height, blendMode, progress, finish) {
 	} else {
 		canvas.width = minWidth;
 		canvas.height = minWidth; // default ratio of 1:1
+	}
+	
+	var draw = function() {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		cover(context, gifs[0].buffer, canvas);
+
+		context.save();
+		context.globalCompositeOperation = blendMode;
+
+		for (var i = 1; i < gifs.length; i++) {
+			cover(context, gifs[i].buffer, canvas);
+		}
+		
+		context.restore();
+	};
+
+	if (durations.length == 0) {
+		draw();
+		finish(canvas.toDataURL());
+
+		return;
 	}
 
 	// encoder
@@ -105,13 +126,7 @@ function create(stack, width, height, blendMode, progress, finish) {
 
  	// time in milliseconds * 10
 	var current = 0;
-	var end = 0;
-
-	if (durations.length > 0) {
-		end = lcms(durations);
-	} else {
-		end = 1; // some number greater than zero
-	}
+	var end = lcms(durations);
 
 	while (current < end) {
 
@@ -143,20 +158,9 @@ function create(stack, width, height, blendMode, progress, finish) {
 		minDelta = minDelta > 0 ? minDelta : 0;
 
 		// draw
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		cover(context, gifs[0].buffer, canvas);
-
-		context.save();
-		context.globalCompositeOperation = blendMode;
-
-		for (var i = 1; i < gifs.length; i++) {
-			cover(context, gifs[i].buffer, canvas);
-		}
-		
-		context.restore();
+		draw();
 
 		// add to encoder
-
 		encoder.addFrame(canvas, {
 			copy: true,
 			delay: minDelta * 10

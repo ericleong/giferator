@@ -1,9 +1,11 @@
+/* global create */
 /* global viewer */
 /* global GifReader */
 /* global async */
 function start() {
 	var player = document.getElementById('player');
 	var stack = [];
+	var animated = false;
 
 	var blendMode = function() {
 		var blend = document.getElementById('blend');
@@ -11,11 +13,22 @@ function start() {
 		if (blend) {
 			return blend.value;
 		}
+	};
+	
+	var blend = document.getElementById('blend');
+	
+	if (blend) {
+		blend.addEventListener('change', function() {
+			if (!animated) {
+				mix(player, stack, blendMode());
+			}
+		});
 	}
 
 	// save downloaded data
-	var loaded = function(results) {
+	var loaded = function(results, animating) {
 		stack = results;
+		animated = animating;
 	};
 
 	var playing = play(player, ['gif/sunrise.gif', 'gif/rainbow.gif'], blendMode, loaded);
@@ -43,6 +56,10 @@ function start() {
 					player.height = player.width / ratio;
 				}
 			}
+			
+			if (!animated) {
+				mix(player, stack, blendMode());
+			}
 		}, false);
 	}
 
@@ -65,10 +82,15 @@ function start() {
 
 					document.getElementById('progress').style.width = p + '%';
 					document.getElementById('create_text').textContent = Math.ceil(p) + '%';
-				}, function(blob) {
+				}, function(data) {
 					var anchor = document.createElement('a');
-					anchor.setAttribute('href', URL.createObjectURL(blob));
-					anchor.setAttribute('download', 'giferator.gif');
+					if (typeof data === 'string') {
+						anchor.setAttribute('href', data);
+						anchor.setAttribute('download', 'giferator.png');
+					} else if (data instanceof Blob) {
+						anchor.setAttribute('href', URL.createObjectURL(data));
+						anchor.setAttribute('download', 'giferator.gif');
+					}
 					anchor.click();
 
 					document.getElementById('progress').style.width = '0%';
@@ -89,8 +111,7 @@ var play = function(canvas, items, blendMode, callback) {
 
 		var reader = [];
 		var minWidth;
-
-		callback(results);
+		var animated = false;
 
 		for (var i = 0; i < results.length; i++) {
 
@@ -103,6 +124,8 @@ var play = function(canvas, items, blendMode, callback) {
 				buffer.height = reader[i].height;
 
 				gifBuffer[i] = buffer;
+				
+				animated = true;
 
 			} else if (results[i] instanceof HTMLImageElement) {
 
@@ -134,10 +157,12 @@ var play = function(canvas, items, blendMode, callback) {
 					
 					playing[i] = view();
 				} else {
-					mix(canvas, gifBuffer);
+					mix(canvas, gifBuffer, blendMode());
 				}
 			});
 		}
+
+		callback(results, animated);
 	});
 
 	return playing;
