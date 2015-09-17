@@ -84,8 +84,8 @@ body {
 	bottom: 0;
 	right: 0;
 
-	padding-top: 4vh;
-	padding-left: 2.75vh;
+	padding-top: 50%;
+	padding-left: 30%;
 
 	font-weight: bold;
 	content: '+';
@@ -105,4 +105,38 @@ body {
 #ratio {
 	width: calc(20% - 4vh);
 	background-color: #757575;
+}
+
+@media only screen and (max-device-width: 480px) {
+	#player {
+		height: 88.2vh;
+	}
+
+	#create, #blend, #ratio, #chooser-wrapper {
+		height: 12vh;
+	}
+
+	#chooser-wrapper {
+		width: 12vh;
+	}
+
+	#chooser-wrapper::before {
+		font-size: 8vh;
+	}
+
+	#ratio, #blend {
+		padding-left: 2.5%;
+	}
+
+	#create {
+		width: 39.99%;
+	}
+
+	#blend {
+		width: calc(35% - 6vh);
+	}
+	
+	#ratio {
+		width: calc(25% - 6vh);
+	}
 }
