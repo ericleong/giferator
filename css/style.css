@@ -109,7 +109,7 @@ body {
 
 @media only screen and (max-device-width: 480px) {
 	#player {
-		height: 88.2vh;
+		height: 88.1vh;
 	}
 
 	#create, #blend, #ratio, #chooser-wrapper {
